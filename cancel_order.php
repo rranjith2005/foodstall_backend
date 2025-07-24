@@ -33,8 +33,14 @@ try {
     $current_status = $row['status'];
 
     // Check current status robustly
-    if ($current_status === null || $current_status === '' ) {
-        // Pending order - cancel it by setting status = -1
+    if ($current_status == 1 || $current_status == 0 || $current_status == -1) {
+        // Already processed or cancelled
+        echo json_encode([
+            "status" => "error",
+            "message" => "Order status already updated; cannot cancel now"
+        ]);
+    } else {
+        // Treat any other status as pending and cancel
         $update = $conn->prepare("UPDATE Orders SET status = -1 WHERE order_id = ? AND student_id = ?");
         $update->bind_param("ss", $order_id, $student_id);
 
@@ -51,18 +57,6 @@ try {
         }
 
         $update->close();
-
-    } elseif ($current_status == 1 || $current_status == 0 || $current_status == -1) {
-        // Order already processed or cancelled
-        echo json_encode([
-            "status" => "error",
-            "message" => "Order status already updated; cannot cancel now"
-        ]);
-    } else {
-        echo json_encode([
-            "status" => "error",
-            "message" => "Unknown order status"
-        ]);
     }
 
     $stmt->close();
