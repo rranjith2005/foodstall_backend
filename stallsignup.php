@@ -4,7 +4,6 @@ ini_set('display_errors', 1);
 header('Content-Type: application/json');
 include 'config.php';
 
-// Enable exception mode for mysqli
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 try {
@@ -15,6 +14,8 @@ try {
     $email = $_POST['email'] ?? '';
     $fulladdress = $_POST['fulladdress'] ?? '';
     $fssainumber = $_POST['fssainumber'] ?? '';
+    $latitude = $_POST['latitude'] ?? '';
+    $longitude = $_POST['longitude'] ?? '';
 
     // Validate phone number (10 digits)
     if (!preg_match('/^[0-9]{10}$/', $phonenumber)) {
@@ -28,21 +29,31 @@ try {
         exit;
     }
 
-    // Insert stall details into StallDetails table
-    $stmt = $conn->prepare("INSERT INTO StallDetails (stallname, ownername, phonenumber, email, fulladdress, fssainumber) VALUES (?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("ssssss", $stallname, $ownername, $phonenumber, $email, $fulladdress, $fssainumber);
+    // Check if phonenumber exists in Osignup (owner signup table)
+    $check_owner = $conn->prepare("SELECT * FROM Osignup WHERE phonenumber = ?");
+    $check_owner->bind_param("s", $phonenumber);
+    $check_owner->execute();
+    $owner_result = $check_owner->get_result();
+
+    if ($owner_result->num_rows === 0) {
+        echo json_encode(["status" => "error", "message" => "Phone number not registered as owner"]);
+        exit;
+    }
+
+    // Insert stall details with approval=0
+    $stmt = $conn->prepare("INSERT INTO StallDetails (stallname, ownername, phonenumber, email, fulladdress, fssainumber, latitude, longitude, approval) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)");
+    $stmt->bind_param("ssssssss", $stallname, $ownername, $phonenumber, $email, $fulladdress, $fssainumber, $latitude, $longitude);
     $stmt->execute();
 
-    echo json_encode(["status" => "success", "message" => "Stall details registered successfully"]);
+    echo json_encode(["status" => "success", "message" => "Stall details submitted for admin approval"]);
 
     $stmt->close();
     $conn->close();
 
 } catch (mysqli_sql_exception $e) {
-    // Check for duplicate entry
     if ($e->getCode() == 1062) {
         if (strpos($e->getMessage(), 'phonenumber') !== false) {
-            echo json_encode(["status" => "error", "message" => "Phone number already exists"]);
+            echo json_encode(["status" => "error", "message" => "Phone number already exists in stall records"]);
         } elseif (strpos($e->getMessage(), 'fssainumber') !== false) {
             echo json_encode(["status" => "error", "message" => "FSSAI number already exists"]);
         } else {
