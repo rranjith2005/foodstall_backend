@@ -6,6 +6,9 @@ include 'config.php';
 
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
+// ✅ Set timezone for accurate date-time storage
+date_default_timezone_set('Asia/Kolkata');
+
 try {
     // Get POST data
     $stall_id = $_POST['stall_id'] ?? '';
@@ -22,44 +25,42 @@ try {
     $regular_menu = isset($_POST['regular_menu']) ? (is_array($_POST['regular_menu']) ? json_encode($_POST['regular_menu']) : $_POST['regular_menu']) : '[]';
     $combo_details = isset($_POST['combo_details']) ? (is_array($_POST['combo_details']) ? json_encode($_POST['combo_details']) : $_POST['combo_details']) : '[]';
 
-    $today_date = date('Y-m-d');
+    // ✅ Get current date and time
+    $today_datetime = date('Y-m-d H:i:s');
 
     if (empty($stall_id)) {
         echo json_encode(["status" => "error", "message" => "stall_id is required"]);
         exit;
     }
 
- if ($working === '0') {
-    // Check if already inserted for today
-    $check = $conn->prepare("SELECT * FROM MenuDetails WHERE stall_id = ? AND menu_date = ?");
-    $check->bind_param("ss", $stall_id, $today_date);
-    $check->execute();
-    $result = $check->get_result();
+    if ($working === '0') {
+        // Check if already inserted for today
+        $check = $conn->prepare("SELECT * FROM MenuDetails WHERE stall_id = ? AND DATE(menu_date) = CURDATE()");
+        $check->bind_param("s", $stall_id);
+        $check->execute();
+        $result = $check->get_result();
 
-    if ($result->num_rows > 0) {
-        echo json_encode(["status" => "success", "message" => "Stall already marked as not working today."]);
-    } else {
-        // Insert as not working with nulls for others
-        $insert = $conn->prepare("
-            INSERT INTO MenuDetails (
-                stall_id, working, todays_special_name, todays_special_price, todays_special_quantity, 
-                regular_menu, combo_details, opening_hours, closing_hours, break_start, break_end, menu_date
-            ) VALUES (?, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, ?)
-        ");
-        $insert->bind_param("ss", $stall_id, $today_date);
-        $insert->execute();
+        if ($result->num_rows > 0) {
+            echo json_encode(["status" => "success", "message" => "Stall already marked as not working today."]);
+        } else {
+            // Insert as not working with nulls for others
+            $insert = $conn->prepare("
+                INSERT INTO MenuDetails (
+                    stall_id, working, todays_special_name, todays_special_price, todays_special_quantity, 
+                    regular_menu, combo_details, opening_hours, closing_hours, break_start, break_end, menu_date
+                ) VALUES (?, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, ?)
+            ");
+            $insert->bind_param("ss", $stall_id, $today_datetime);
+            $insert->execute();
 
-        echo json_encode(["status" => "success", "message" => "Stall not working today. Menu recorded as closed."]);
+            echo json_encode(["status" => "success", "message" => "Stall not working today. Menu recorded as closed."]);
+        }
+        exit;
     }
 
-    exit;
-}
-
-    
-
     // Check if menu exists for today
-    $check = $conn->prepare("SELECT * FROM MenuDetails WHERE stall_id = ? AND menu_date = ?");
-    $check->bind_param("ss", $stall_id, $today_date);
+    $check = $conn->prepare("SELECT * FROM MenuDetails WHERE stall_id = ? AND DATE(menu_date) = CURDATE()");
+    $check->bind_param("s", $stall_id);
     $check->execute();
     $result = $check->get_result();
 
@@ -79,7 +80,7 @@ try {
             $row['break_start'] == $break_start &&
             $row['break_end'] == $break_end
         ) {
-            echo json_encode(["status" => "success", "message" => "no changes made"]);
+            echo json_encode(["status" => "success", "message" => "No changes made"]);
         } else {
             // Update menu
             $update = $conn->prepare("
@@ -93,8 +94,9 @@ try {
                     opening_hours = ?, 
                     closing_hours = ?, 
                     break_start = ?, 
-                    break_end = ?
-                WHERE stall_id = ? AND menu_date = ?
+                    break_end = ?,
+                    menu_date = ?
+                WHERE stall_id = ? AND DATE(menu_date) = CURDATE()
             ");
             $update->bind_param(
                 "isdissssssss",
@@ -108,12 +110,12 @@ try {
                 $closing_hours,
                 $break_start,
                 $break_end,
-                $stall_id,
-                $today_date
+                $today_datetime,
+                $stall_id
             );
             $update->execute();
 
-            echo json_encode(["status" => "success", "message" => "menu updated"]);
+            echo json_encode(["status" => "success", "message" => "Menu updated"]);
         }
     } else {
         // Insert new menu
@@ -136,11 +138,11 @@ try {
             $closing_hours,
             $break_start,
             $break_end,
-            $today_date
+            $today_datetime
         );
         $insert->execute();
 
-        echo json_encode(["status" => "success", "message" => "menu inserted"]);
+        echo json_encode(["status" => "success", "message" => "Menu inserted"]);
     }
 
     $check->close();
