@@ -1,77 +1,86 @@
 <?php
+date_default_timezone_set('Asia/Kolkata');
 header('Content-Type: application/json');
 include 'config.php';
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 try {
-    // Get order_id and student_id from POST
-    $order_id = $_POST['order_id'] ?? '';
     $student_id = $_POST['student_id'] ?? '';
+    $stall_id = $_POST['stall_id'] ?? '';
+    $order_items = $_POST['order_items'] ?? '';
 
-    if (empty($order_id) || empty($student_id)) {
+    if (empty($student_id) || empty($stall_id) || empty($order_items)) {
         echo json_encode([
             "status" => "error",
-            "message" => "order_id and student_id are required"
+            "message" => "student_id, stall_id and order_items are required"
         ]);
         exit;
     }
 
-    // Check if order exists and belongs to the student
-    $stmt = $conn->prepare("SELECT status FROM Orders WHERE order_id = ? AND student_id = ?");
-    $stmt->bind_param("ss", $order_id, $student_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows == 0) {
-        echo json_encode([
-            "status" => "error",
-            "message" => "Order not found for this student"
-        ]);
+    $order_items_array = json_decode($order_items, true);
+    if (!is_array($order_items_array)) {
+        echo json_encode(["status" => "error", "message" => "Invalid order_items format"]);
         exit;
     }
 
-    $row = $result->fetch_assoc();
-    $current_status = $row['status'];
-
-    // Check current status robustly
-    if ($current_status === null || $current_status === '' ) {
-        // Pending order - cancel it by setting status = -1
-        $update = $conn->prepare("UPDATE Orders SET status = -1 WHERE order_id = ? AND student_id = ?");
-        $update->bind_param("ss", $order_id, $student_id);
-
-        if ($update->execute()) {
-            echo json_encode([
-                "status" => -1,
-                "message" => "Your order has been successfully cancelled"
-            ]);
-        } else {
-            echo json_encode([
-                "status" => "error",
-                "message" => "Failed to cancel order"
-            ]);
-        }
-
-        $update->close();
-
-    } elseif ($current_status == 1 || $current_status == 0 || $current_status == -1) {
-        // Order already processed or cancelled
-        echo json_encode([
-            "status" => "error",
-            "message" => "Order status already updated; cannot cancel now"
-        ]);
-    } else {
-        echo json_encode([
-            "status" => "error",
-            "message" => "Unknown order status"
-        ]);
+    $total_amount = 0;
+    foreach ($order_items_array as $item) {
+        $qty = (int)$item['quantity'];
+        $price = (float)$item['price'];
+        $total_amount += ($qty * $price);
     }
 
-    $stmt->close();
+    $order_items_json = json_encode($order_items_array, JSON_UNESCAPED_UNICODE);
+    $order_date = date('Y-m-d');
+    $order_time = date('H:i:s');
+
+    // Extract prefix from stall_id (first 3 characters)
+    $prefix = substr($stall_id, 0, 3);  // e.g., "S07"
+
+    // Keep incrementing number until a unique order_id is found
+    $order_number = 1;
+    do {
+        $order_id = $prefix . '-' . $order_number;
+
+        $check = $conn->prepare("SELECT COUNT(*) AS count FROM Orders WHERE order_id = ?");
+        $check->bind_param("s", $order_id);
+        $check->execute();
+        $res = $check->get_result()->fetch_assoc();
+        $exists = $res['count'] > 0;
+        $order_number++;
+    } while ($exists);
+
+    // Insert order
+    $insert = $conn->prepare("
+        INSERT INTO Orders (order_id, student_id, stall_id, order_items, total_amount, order_date, order_time, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, NULL)
+    ");
+    $insert->bind_param(
+        "ssssdss",
+        $order_id,
+        $student_id,
+        $stall_id,
+        $order_items_json,
+        $total_amount,
+        $order_date,
+        $order_time
+    );
+    $insert->execute();
+
+    echo json_encode([
+        "status" => "success",
+        "message" => "Order placed successfully",
+        "order_id" => $order_id,
+        "total_amount" => $total_amount,
+        "order_items" => $order_items_array
+    ]);
+
+    $insert->close();
     $conn->close();
 
 } catch (mysqli_sql_exception $e) {
     echo json_encode([
         "status" => "error",
-        "message" => "Cancellation failed: " . $e->getMessage()
+        "message" => "Order failed: " . $e->getMessage()
     ]);
 }
-?>
