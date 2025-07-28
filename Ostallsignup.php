@@ -14,8 +14,6 @@ try {
     $email = $_POST['email'] ?? '';
     $fulladdress = $_POST['fulladdress'] ?? '';
     $fssainumber = $_POST['fssainumber'] ?? '';
-    $latitude = $_POST['latitude'] ?? '';
-    $longitude = $_POST['longitude'] ?? '';
 
     // Validate phone number (10 digits)
     if (!preg_match('/^[0-9]{10}$/', $phonenumber)) {
@@ -41,8 +39,8 @@ try {
     }
 
     // Insert stall details with approval=0
-    $stmt = $conn->prepare("INSERT INTO StallDetails (stallname, ownername, phonenumber, email, fulladdress, fssainumber, latitude, longitude, approval) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)");
-    $stmt->bind_param("ssssssss", $stallname, $ownername, $phonenumber, $email, $fulladdress, $fssainumber, $latitude, $longitude);
+    $stmt = $conn->prepare("INSERT INTO StallDetails (stallname, ownername, phonenumber, email, fulladdress, fssainumber, approval) VALUES (?, ?, ?, ?, ?, ?, 0)");
+    $stmt->bind_param("ssssss", $stallname, $ownername, $phonenumber, $email, $fulladdress, $fssainumber);
     $stmt->execute();
 
     echo json_encode(["status" => "success", "message" => "Stall details submitted for admin approval"]);

@@ -7,7 +7,7 @@ mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 try {
     $student_id = $_POST['student_id'] ?? '';
     $stall_id = $_POST['stall_id'] ?? '';
-    $order_items = $_POST['order_items'] ?? '';
+    $order_items = $_POST['order_items'] ?? ''; // should be JSON string
 
     if (empty($student_id) || empty($stall_id) || empty($order_items)) {
         echo json_encode([
@@ -24,24 +24,43 @@ try {
     }
 
     $total_amount = 0;
-    foreach ($order_items_array as $item) {
+
+    foreach ($order_items_array as &$item) {
+        // Validate required fields
+        if (!isset($item['quantity'], $item['price'])) {
+            echo json_encode(["status" => "error", "message" => "Each item must include quantity and price"]);
+            exit;
+        }
+
         $qty = (int)$item['quantity'];
         $price = (float)$item['price'];
         $total_amount += ($qty * $price);
+
+        // Handle preparcel flag & time if provided
+        $item['preparcel'] = isset($item['preparcel']) ? (int)$item['preparcel'] : 0;
+
+        if ($item['preparcel'] === 1) {
+            if (empty($item['preparcel_time'])) {
+                echo json_encode(["status" => "error", "message" => "Preparcel time required for preparcel items"]);
+                exit;
+            }
+            // Convert 12-hour to 24-hour format for consistency
+            $item['preparcel_time'] = date("H:i:s", strtotime($item['preparcel_time']));
+        } else {
+            $item['preparcel_time'] = null;
+        }
     }
+    unset($item); // break reference
 
     $order_items_json = json_encode($order_items_array, JSON_UNESCAPED_UNICODE);
     $order_date = date('Y-m-d');
     $order_time = date('H:i:s');
 
-    // Extract prefix from stall_id (first 3 characters)
-    $prefix = substr($stall_id, 0, 3);  // e.g., "S07"
-
-    // Keep incrementing number until a unique order_id is found
+    // Generate unique order_id using stall_id prefix
+    $prefix = substr($stall_id, 0, 3);
     $order_number = 1;
     do {
         $order_id = $prefix . '-' . $order_number;
-
         $check = $conn->prepare("SELECT COUNT(*) AS count FROM Orders WHERE order_id = ?");
         $check->bind_param("s", $order_id);
         $check->execute();
