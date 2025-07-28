@@ -10,7 +10,7 @@ if (empty($stall_id)) {
 }
 
 try {
-    $stmt = $conn->prepare("SELECT * FROM owner_reviews WHERE stall_id = ?");
+    $stmt = $conn->prepare("SELECT * FROM owner_reviews WHERE stall_id = ?ORDER BY review_date DESC");
     $stmt->bind_param("s", $stall_id);
     $stmt->execute();
     $result = $stmt->get_result();

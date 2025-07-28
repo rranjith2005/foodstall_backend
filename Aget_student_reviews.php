@@ -10,7 +10,8 @@ if (empty($stall_id)) {
 }
 
 try {
-    $stmt = $conn->prepare("SELECT * FROM student_reviews WHERE stall_id = ?");
+    // ✅ Sorted by most recent review_date (descending)
+    $stmt = $conn->prepare("SELECT * FROM student_reviews WHERE stall_id = ? ORDER BY review_date DESC");
     $stmt->bind_param("s", $stall_id);
     $stmt->execute();
     $result = $stmt->get_result();
