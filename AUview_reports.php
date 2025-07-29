@@ -5,13 +5,24 @@ header('Content-Type: application/json');
 include 'config.php';
 
 try {
-    // Fetch all completed orders (status = 1)
-    $stmt = $conn->prepare("
+    $stall_id_filter = $_GET['stall_id'] ?? '';
+
+    // Base query
+    $query = "
         SELECT o.stall_id, o.total_amount, o.order_items, s.stallname AS stallname
         FROM orders o
         JOIN stalldetails s ON o.stall_id = s.stall_id
         WHERE o.status = 1
-    ");
+    ";
+
+    if (!empty($stall_id_filter)) {
+        $query .= " AND o.stall_id = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("s", $stall_id_filter);
+    } else {
+        $stmt = $conn->prepare($query);
+    }
+
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -65,10 +76,12 @@ try {
         ];
     }
 
-    // Sort by total earnings descending
-    usort($final, function ($a, $b) {
-        return $b['total_earnings'] <=> $a['total_earnings'];
-    });
+    // Sort only if showing all stalls
+    if (empty($stall_id_filter)) {
+        usort($final, function ($a, $b) {
+            return $b['total_earnings'] <=> $a['total_earnings'];
+        });
+    }
 
     echo json_encode([
         'status' => 'success',
