@@ -7,7 +7,13 @@ include 'config.php';
 try {
     $menu_date = $_GET['menu_date'] ?? $_POST['menu_date'] ?? date('Y-m-d');
 
-    $stmt = $conn->prepare("SELECT * FROM MenuDetails WHERE menu_date = ?");
+    // Join with stalldetails and check approval = 1
+    $stmt = $conn->prepare("
+        SELECT m.* 
+        FROM MenuDetails m
+        INNER JOIN stalldetails s ON m.stall_id = s.stall_id
+        WHERE m.menu_date = ? AND s.approval = 1
+    ");
     $stmt->bind_param("s", $menu_date);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -38,7 +44,7 @@ try {
     if (empty($menus)) {
         echo json_encode([
             "status" => "error",
-            "message" => "No menus found on the given date"
+            "message" => "No menus found on the given date for approved stalls"
         ]);
     } else {
         echo json_encode([
