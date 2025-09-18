@@ -7,58 +7,55 @@ include 'config.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 try {
-    // Get POST data
+    // Get all POST data
     $stallname = $_POST['stallname'] ?? '';
     $ownername = $_POST['ownername'] ?? '';
     $phonenumber = $_POST['phonenumber'] ?? '';
     $email = $_POST['email'] ?? '';
     $fulladdress = $_POST['fulladdress'] ?? '';
     $fssainumber = $_POST['fssainumber'] ?? '';
+    $password = $_POST['password'] ?? '';
 
-    // Validate phone number (10 digits)
-    if (!preg_match('/^[0-9]{10}$/', $phonenumber)) {
-        echo json_encode(["status" => "error", "message" => "Phone number must be exactly 10 digits"]);
-        exit;
+    // Verify the owner and their password
+    $stmt_owner = $conn->prepare("SELECT password FROM Osignup WHERE phonenumber = ?");
+    $stmt_owner->bind_param("s", $phonenumber);
+    $stmt_owner->execute();
+    $result_owner = $stmt_owner->get_result();
+
+    if ($result_owner->num_rows === 0) {
+        throw new Exception("This phone number is not registered as an owner.");
+    }
+    $owner = $result_owner->fetch_assoc();
+    if (!password_verify($password, $owner['password'])) {
+        throw new Exception("Incorrect password. Please enter the password you used for signup.");
     }
 
-    // Validate FSSAI number (14 digits)
-    if (!preg_match('/^[0-9]{14}$/', $fssainumber)) {
-        echo json_encode(["status" => "error", "message" => "FSSAI number must be exactly 14 digits"]);
-        exit;
-    }
+    // --- THIS IS THE NEW LOGIC ---
+    // Check if a stall record already exists for this phone number
+    $stmt_check = $conn->prepare("SELECT id FROM stalldetails WHERE phonenumber = ?");
+    $stmt_check->bind_param("s", $phonenumber);
+    $stmt_check->execute();
+    $result_check = $stmt_check->get_result();
 
-    // Check if phonenumber exists in Osignup (owner signup table)
-    $check_owner = $conn->prepare("SELECT * FROM Osignup WHERE phonenumber = ?");
-    $check_owner->bind_param("s", $phonenumber);
-    $check_owner->execute();
-    $owner_result = $check_owner->get_result();
-
-    if ($owner_result->num_rows === 0) {
-        echo json_encode(["status" => "error", "message" => "Phone number not registered as owner"]);
-        exit;
-    }
-
-    // Insert stall details with approval=0
-    $stmt = $conn->prepare("INSERT INTO StallDetails (stallname, ownername, phonenumber, email, fulladdress, fssainumber, approval) VALUES (?, ?, ?, ?, ?, ?, 0)");
-    $stmt->bind_param("ssssss", $stallname, $ownername, $phonenumber, $email, $fulladdress, $fssainumber);
-    $stmt->execute();
-
-    echo json_encode(["status" => "success", "message" => "Stall details submitted for admin approval"]);
-
-    $stmt->close();
-    $conn->close();
-
-} catch (mysqli_sql_exception $e) {
-    if ($e->getCode() == 1062) {
-        if (strpos($e->getMessage(), 'phonenumber') !== false) {
-            echo json_encode(["status" => "error", "message" => "Phone number already exists in stall records"]);
-        } elseif (strpos($e->getMessage(), 'fssainumber') !== false) {
-            echo json_encode(["status" => "error", "message" => "FSSAI number already exists"]);
-        } else {
-            echo json_encode(["status" => "error", "message" => "Duplicate entry"]);
-        }
+    if ($result_check->num_rows > 0) {
+        // --- UPDATE EXISTING RECORD ---
+        // The stall was rejected before, so we update it and set status back to pending (0)
+        $stmt_update = $conn->prepare("UPDATE stalldetails SET stallname=?, ownername=?, email=?, fulladdress=?, fssainumber=?, approval=0, rejection_reason=NULL WHERE phonenumber=?");
+        $stmt_update->bind_param("ssssss", $stallname, $ownername, $email, $fulladdress, $fssainumber, $phonenumber);
+        $stmt_update->execute();
+        $message = "Stall details updated and resubmitted for approval";
     } else {
-        echo json_encode(["status" => "error", "message" => "Registration failed: " . $e->getMessage()]);
+        // --- INSERT NEW RECORD ---
+        // This is a brand new submission
+        $stmt_insert = $conn->prepare("INSERT INTO stalldetails (stallname, ownername, phonenumber, email, fulladdress, fssainumber, approval) VALUES (?, ?, ?, ?, ?, ?, 0)");
+        $stmt_insert->bind_param("ssssss", $stallname, $ownername, $phonenumber, $email, $fulladdress, $fssainumber);
+        $stmt_insert->execute();
+        $message = "Stall details submitted for admin approval";
     }
+    
+    echo json_encode(["status" => "success", "message" => $message]);
+
+} catch (Exception $e) {
+    echo json_encode(["status" => "error", "message" => $e->getMessage()]);
 }
 ?>

@@ -1,5 +1,5 @@
 <?php
-$host = "localhost";
+$host = "localhost";    
 $user = "root";
 $password = "12345";  // ✅ Your MySQL root password
 $db = "foodstall";

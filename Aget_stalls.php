@@ -4,55 +4,56 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 include 'config.php';
 
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
 try {
-    // Get filter from GET or POST (approved, rejected, all)
-    $filter = $_GET['filter'] ?? $_POST['filter'] ?? 'all';
+    // Get filter from the POST request, default to 'all' if not provided
+    $filter = $_POST['filter'] ?? 'all';
 
+    // Base query
+    $query = "SELECT * FROM StallDetails";
+    $params = [];
+    $types = '';
+
+    // --- THIS IS THE CRITICAL FIX ---
+    // We build the query dynamically and safely based on the filter.
     if ($filter == 'approved') {
-        $query = "SELECT * FROM stalldetails WHERE approval = 1";
+        $query .= " WHERE approval = ?";
+        $params[] = 1;
+        $types .= 'i';
     } elseif ($filter == 'rejected') {
-        $query = "SELECT * FROM stalldetails WHERE approval = 0";
-    } else {
-        // all stalls
-        $query = "SELECT * FROM stalldetails";
+        $query .= " WHERE approval = ?";
+        $params[] = -1;
+        $types .= 'i';
+    } elseif ($filter == 'pending') {
+        $query .= " WHERE approval = ?";
+        $params[] = 0;
+        $types .= 'i';
     }
 
-    $result = $conn->query($query);
-
-    if (!$result) {
-        throw new Exception("Query failed: " . $conn->error);
+    $stmt = $conn->prepare($query);
+    
+    // Bind the parameter if a filter was applied
+    if (!empty($params)) {
+        $stmt->bind_param($types, ...$params);
     }
-
+    
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
     $stalls = [];
-
     while ($row = $result->fetch_assoc()) {
-        $stalls[] = [
-            "stall_id" => $row['stall_id'],
-            "stallname" => $row['stallname'],
-            "ownername" => $row['ownername'],
-            "phonenumber" => $row['phonenumber'],
-            "email" => $row['email'],
-            "fulladdress" => $row['fulladdress'],
-            "fssainumber" => $row['fssainumber'],
-            "latitude" => $row['latitude'],
-            "longitude" => $row['longitude'],
-            "approval" => $row['approval']
-        ];
+        $stalls[] = $row;
     }
 
     echo json_encode([
         "status" => "success",
-        "filter" => $filter,
         "stalls" => $stalls
     ]);
 
+    $stmt->close();
     $conn->close();
 
-} catch (mysqli_sql_exception $e) {
-    echo json_encode([
-        "status" => "error",
-        "message" => "MySQLi Exception: " . $e->getMessage()
-    ]);
 } catch (Exception $e) {
     echo json_encode([
         "status" => "error",

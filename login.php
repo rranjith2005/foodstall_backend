@@ -6,124 +6,110 @@ include 'config.php';
 
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
+$response = [];
+$identifier = $_POST['identifier'] ?? '';
+$password = $_POST['password'] ?? '';
+
+if (empty($identifier) || empty($password)) {
+    echo json_encode(['status' => 'error', 'message' => 'ID and password are required']);
+    exit;
+}
+
 try {
-    // Get POST data
-    $id = $_POST['id'] ?? '';
-    $password = $_POST['password'] ?? '';
+    $user_found = false;
 
-    if (empty($id) || empty($password)) {
-        echo json_encode(["status" => "error", "message" => "ID and password are required"]);
-        exit;
-    }
+    // --- Scenario 1: Check for an approved Owner logging in with their Stall ID ---
+    if (strpos($identifier, 'S') === 0) {
+        $stmt_owner = $conn->prepare(
+            "SELECT sd.stallname, o.password FROM stalldetails sd 
+             JOIN Osignup o ON sd.phonenumber = o.phonenumber 
+             WHERE sd.stall_id = ? AND sd.approval = 1"
+        );
+        $stmt_owner->bind_param("s", $identifier);
+        $stmt_owner->execute();
+        $result_owner = $stmt_owner->get_result();
 
-    // 1. Check Admin table (username as id)
-    $stmt = $conn->prepare("SELECT * FROM Admin WHERE username = ?");
-    $stmt->bind_param("s", $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows === 1) {
-        $admin = $result->fetch_assoc();
-        if (password_verify($password, $admin['password'])) {
-            echo json_encode([
-                "status" => "success",
-                "role" => "admin",
-                "message" => "Admin login successful",
-                "admin" => [
-                    "id" => $admin['id'],
-                    "username" => $admin['username']
-                ]
-            ]);
-            exit;
-        } else {
-            echo json_encode(["status" => "error", "message" => "Invalid password"]);
-            exit;
-        }
-    }
-
-    // 2. Check Owner table (stall_id as id)
-    $stmt = $conn->prepare("SELECT * FROM StallDetails WHERE stall_id = ?");
-    $stmt->bind_param("s", $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows === 1) {
-        $stall = $result->fetch_assoc();
-
-        if ($stall['approval'] == 1) {
-            // Get owner password from Osignup using phonenumber
-            $phonenumber = $stall['phonenumber'];
-            $stmt2 = $conn->prepare("SELECT * FROM Osignup WHERE phonenumber = ?");
-            $stmt2->bind_param("s", $phonenumber);
-            $stmt2->execute();
-            $result2 = $stmt2->get_result();
-
-            if ($result2->num_rows === 1) {
-                $owner = $result2->fetch_assoc();
-                if (password_verify($password, $owner['password'])) {
-echo json_encode([
-    "status" => "success",
-    "role" => "owner",
-    "message" => "Owner login successful",
-    "owner" => [
-        "id" => $owner['id'],
-        "fullname" => $owner['fullname'],
-        "phonenumber" => $owner['phonenumber'],
-        "email" => $stall['email'], // get from StallDetails
-        "stall_id" => $stall['stall_id']
-    ]
-]);
-
-                    exit;
-                } else {
-                    echo json_encode(["status" => "error", "message" => "Invalid password"]);
-                    exit;
-                }
-            } else {
-                echo json_encode(["status" => "error", "message" => "Owner details not found"]);
-                exit;
+        if ($result_owner->num_rows === 1) {
+            $owner_details = $result_owner->fetch_assoc();
+            if (password_verify($password, $owner_details['password'])) {
+                $user_found = true;
+                $response = [
+                    'status' => 'success',
+                    'message' => 'Owner login successful!',
+                    'role' => 'owner_approved',
+                    'data' => [ 'stall_id' => $identifier, 'stall_name' => $owner_details['stallname'] ]
+                ];
             }
-
-        } else {
-            echo json_encode(["status" => "error", "message" => "Your stall is not yet approved by admin"]);
-            exit;
         }
+        $stmt_owner->close();
     }
 
-    // 3. Check Student table (student_id as id)
-    $stmt = $conn->prepare("SELECT * FROM Usignup WHERE student_id = ?");
-    $stmt->bind_param("s", $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    // --- Scenario 2: If not a Stall ID, check if it's a User/Student ---
+    if (!$user_found) {
+        $stmt_user = $conn->prepare("SELECT * FROM usignup WHERE student_id = ? AND is_admin = 0");
+        $stmt_user->bind_param("s", $identifier);
+        $stmt_user->execute();
+        $result_user = $stmt_user->get_result();
 
-    if ($result->num_rows === 1) {
-        $student = $result->fetch_assoc();
-        if (password_verify($password, $student['password'])) {
-            echo json_encode([
-                "status" => "success",
-                "role" => "student",
-                "message" => "Student login successful",
-                "student" => [
-                    "id" => $student['id'],
-                    "fullname" => $student['fullname'],
-                    "student_id" => $student['student_id'],
-                    "email" => $student['email']
-                ]
-            ]);
-            exit;
-        } else {
-            echo json_encode(["status" => "error", "message" => "Invalid password"]);
-            exit;
+        if ($result_user->num_rows === 1) {
+            $user = $result_user->fetch_assoc();
+            if (password_verify($password, $user['password'])) {
+                $user_found = true;
+                $response = [
+                    'status' => 'success',
+                    'message' => 'User login successful!',
+                    'role' => 'student',
+                    'data' => [
+                        'id' => $user['id'],
+                        'fullname' => $user['fullname'],
+                        'student_id' => $user['student_id'],
+                        'email' => $user['email']
+                    ]
+                ];
+            }
         }
+        $stmt_user->close();
+    }
+    
+    // --- Scenario 3: If not found yet, check if it's an Owner by Phone Number ---
+    if (!$user_found) {
+        $stmt_owner_phone = $conn->prepare(
+            "SELECT o.*, sd.approval, sd.stall_id, sd.rejection_reason, sd.stallname 
+             FROM Osignup o
+             LEFT JOIN stalldetails sd ON o.phonenumber = sd.phonenumber
+             WHERE o.phonenumber = ?"
+        );
+        $stmt_owner_phone->bind_param("s", $identifier);
+        $stmt_owner_phone->execute();
+        $result_owner_phone = $stmt_owner_phone->get_result();
+
+        if ($result_owner_phone->num_rows === 1) {
+            $owner = $result_owner_phone->fetch_assoc();
+            if (password_verify($password, $owner['password'])) {
+                $user_found = true;
+                $response = [
+                    'status' => 'success',
+                    'message' => 'Owner status check successful!',
+                    'role' => 'owner_status_check',
+                    'data' => [
+                        'stall_status' => $owner['approval'] ?? 0,
+                        'stall_id' => $owner['stall_id'] ?? null,
+                        'rejection_reason' => $owner['rejection_reason'] ?? null
+                    ]
+                ];
+            }
+        }
+        $stmt_owner_phone->close();
     }
 
-    // If no user found
-    echo json_encode(["status" => "error", "message" => "User not found"]);
-
-    $stmt->close();
-    $conn->close();
+    if (!$user_found) {
+        $response = ['status' => 'error', 'message' => 'Invalid credentials or user not found'];
+    }
 
 } catch (mysqli_sql_exception $e) {
-    echo json_encode(["status" => "error", "message" => "Login failed: " . $e->getMessage()]);
+    $response = ['status' => 'error', 'message' => 'Database Error: ' . $e->getMessage()];
 }
+
+echo json_encode($response);
+$conn->close();
 ?>
