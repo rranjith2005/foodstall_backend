@@ -25,8 +25,8 @@ if (empty($stall_id) || empty($student_id)) {
 try {
     $response = [];
 
-    // 1. Get Stall Details (Unchanged)
-    $stmt_stall = $conn->prepare("SELECT stallname, fulladdress FROM stalldetails WHERE stall_id = ?");
+    // --- UPDATED: This query now also selects latitude and longitude ---
+    $stmt_stall = $conn->prepare("SELECT stallname, fulladdress, latitude, longitude FROM stalldetails WHERE stall_id = ?");
     $stmt_stall->bind_param("s", $stall_id);
     $stmt_stall->execute();
     $response['stall_details'] = $stmt_stall->get_result()->fetch_assoc();

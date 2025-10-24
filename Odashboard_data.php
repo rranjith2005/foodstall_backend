@@ -1,67 +1,82 @@
 <?php
 header('Content-Type: application/json');
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-set_error_handler(function($severity, $message, $file, $line) {
-    http_response_code(500);
-    die(json_encode([
-        "status" => "error",
-        "message" => "PHP Error: " . $message,
-        "file" => $file,
-        "line" => $line
-    ]));
-});
-
 include 'config.php';
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-$stall_id = $_POST['stall_id'] ?? '';
-
-if (empty($stall_id)) {
-    echo json_encode(['status' => 'error', 'message' => 'Stall ID is required.']);
-    exit;
-}
-
 try {
+    $stall_id = $_REQUEST['stall_id'] ?? '';
+    if(empty($stall_id)) { throw new Exception('Stall ID is required.'); }
+
     $response = [];
 
-    // 1. Get Orders Today
-    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM orders WHERE stall_id = ? AND DATE(order_date) = CURDATE()");
-    $stmt->bind_param("s", $stall_id);
-    $stmt->execute();
-    $response['orders_today'] = $stmt->get_result()->fetch_assoc()['count'] ?? 0;
-    $stmt->close();
+    // --- SUMMARY CARD DATA (Unchanged) ---
+    $stmt_orders = $conn->prepare("SELECT COUNT(order_id) as count FROM orders WHERE stall_id = ? AND order_status IN ('Delivered', 'Rejected') AND DATE(order_date) = CURDATE()");
+    $stmt_orders->bind_param("s", $stall_id);
+    $stmt_orders->execute();
+    $response['orders_today'] = $stmt_orders->get_result()->fetch_assoc()['count'] ?? 0;
+    $stmt_orders->close();
+    
+    $stmt_rev = $conn->prepare("SELECT SUM(total_amount) as total FROM orders WHERE stall_id = ? AND DATE(order_date) = CURDATE() AND order_status = 'Delivered'");
+    $stmt_rev->bind_param("s", $stall_id);
+    $stmt_rev->execute();
+    $response['revenue_today'] = $stmt_rev->get_result()->fetch_assoc()['total'] ?? 0.00;
+    $stmt_rev->close();
 
-    // 2. Get Revenue Today
-    $stmt = $conn->prepare("SELECT SUM(total_amount) as total FROM orders WHERE stall_id = ? AND DATE(order_date) = CURDATE()");
-    $stmt->bind_param("s", $stall_id);
-    $stmt->execute();
-    $response['revenue_today'] = $stmt->get_result()->fetch_assoc()['total'] ?? 0.00;
-    $stmt->close();
+    $stmt_pending = $conn->prepare("SELECT COUNT(*) as count FROM orders WHERE stall_id = ? AND order_status = 'Pending' AND DATE(order_date) = CURDATE()");
+    $stmt_pending->bind_param("s", $stall_id);
+    $stmt_pending->execute();
+    $response['pending_orders'] = $stmt_pending->get_result()->fetch_assoc()['count'] ?? 0;
+    $stmt_pending->close();
 
-    // 3. Get Pending Orders (Using the correct 'order_status' column)
-    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM orders WHERE stall_id = ? AND order_status = 'Pending'");
-    $stmt->bind_param("s", $stall_id);
-    $stmt->execute();
-    $response['pending_orders'] = $stmt->get_result()->fetch_assoc()['count'] ?? 0;
-    $stmt->close();
+    $stmt_top = $conn->prepare("SELECT oi.item_name FROM order_items oi JOIN orders o ON oi.order_id = o.order_id WHERE o.stall_id = ? GROUP BY oi.item_name ORDER BY SUM(oi.quantity) DESC LIMIT 1");
+    $stmt_top->bind_param("s", $stall_id);
+    $stmt_top->execute();
+    $response['top_selling'] = $stmt_top->get_result()->fetch_assoc()['item_name'] ?? 'N/A';
+    $stmt_top->close();
 
-    // 4. Get Top Selling Item
-    $stmt = $conn->prepare(
-        "SELECT oi.item_name, SUM(oi.quantity) as total_sold
-         FROM order_items oi
-         JOIN orders o ON oi.order_id = o.order_id
-         WHERE o.stall_id = ?
-         GROUP BY oi.item_name
-         ORDER BY total_sold DESC
-         LIMIT 1"
+    // --- Revenue Trend Data (Unchanged) ---
+    $stmt_trend = $conn->prepare("
+        SELECT DATE(order_date) as date, SUM(total_amount) as revenue 
+        FROM orders 
+        WHERE stall_id = ? AND order_status = 'Delivered' AND order_date >= CURDATE() - INTERVAL 30 DAY 
+        GROUP BY DATE(order_date) 
+        ORDER BY date ASC
+    ");
+    $stmt_trend->bind_param("s", $stall_id);
+    $stmt_trend->execute();
+    $response['revenue_trend'] = $stmt_trend->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt_trend->close();
+
+    // --- Peak Hours Data (Unchanged) ---
+    $stmt_peak = $conn->prepare("
+        SELECT HOUR(order_date) as hour, COUNT(order_id) as order_count 
+        FROM orders 
+        WHERE stall_id = ? AND order_status = 'Delivered'
+        GROUP BY HOUR(order_date) 
+        ORDER BY hour ASC
+    ");
+    $stmt_peak->bind_param("s", $stall_id);
+    $stmt_peak->execute();
+    $response['peak_hours'] = $stmt_peak->get_result()->fetch_all(MYSQLI_ASSOC);
+    $stmt_peak->close();
+    
+    // ***** NEW: RENT DETAILS CHECK *****
+    $current_month = date('n');
+    $current_year = date('Y');
+    
+    $stmt_rent = $conn->prepare(
+        "SELECT invoice_id, total_revenue, rent_amount, late_fee, invoice_month, invoice_year 
+         FROM rent_invoices 
+         WHERE stall_id = ? AND invoice_month = ? AND invoice_year = ? AND status = 'unpaid'"
     );
-    $stmt->bind_param("s", $stall_id);
-    $stmt->execute();
-    $top_item = $stmt->get_result()->fetch_assoc();
-    $response['top_selling'] = $top_item['item_name'] ?? 'N/A';
-    $stmt->close();
+    $stmt_rent->bind_param("sii", $stall_id, $current_month, $current_year);
+    $stmt_rent->execute();
+    $rent_details = $stmt_rent->get_result()->fetch_assoc();
+    $stmt_rent->close();
+
+    // If rent details are found, add them to the response, otherwise add null
+    $response['rent_details'] = $rent_details ? $rent_details : null;
+    // **********************************
 
     echo json_encode(['status' => 'success', 'data' => $response]);
 

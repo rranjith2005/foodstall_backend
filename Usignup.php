@@ -38,10 +38,35 @@ try {
     $password = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
 
-    // --- STEP A: VALIDATE INPUT ---
-    // This block prevents the script from proceeding if the app sends empty data.
+    // --- STEP A: SERVER-SIDE VALIDATION ---
     if (empty($fullname) || empty($student_id) || empty($email) || empty($password)) {
         echo json_encode(["status" => "error", "message" => "All fields are required"]);
+        exit;
+    }
+
+    if (!preg_match("/^[a-zA-Z\s]+$/", $fullname)) {
+        echo json_encode(["status" => "error", "message" => "Full name must contain only alphabets and spaces"]);
+        exit;
+    }
+
+    if (!preg_match("/^[0-9]+$/", $student_id)) {
+        echo json_encode(["status" => "error", "message" => "Student ID must contain only numbers"]);
+        exit;
+    }
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        echo json_encode(["status" => "error", "message" => "Invalid email format"]);
+        exit;
+    }
+    if (substr($email, -10) !== '@gmail.com') {
+    echo json_encode(['status' => 'error', 'message' => 'Only @gmail.com emails are accepted']);
+    exit;
+}
+
+    // Password validation: 1 uppercase, 1 lowercase, 1 number, 1 special char, 6-8 length
+    $password_regex = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,8}$/";
+    if (!preg_match($password_regex, $password)) {
+        echo json_encode(["status" => "error", "message" => "Password does not meet requirements"]);
         exit;
     }
     
@@ -51,7 +76,6 @@ try {
     }
     
     // --- STEP B: CHECK FOR DUPLICATES ---
-    // This prevents the script from crashing if the user already exists.
     $stmt = $conn->prepare("SELECT id FROM Usignup WHERE email = ? OR student_id = ?");
     $stmt->bind_param("ss", $email, $student_id);
     $stmt->execute();

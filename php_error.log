@@ -1,0 +1,201 @@
+[23-Oct-2025 09:23:07 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 09:23:07 Europe/Berlin] Identifier received: S81205
+[23-Oct-2025 09:23:07 Europe/Berlin] Scenario 1: Detected Stall ID login for ID: S81205
+[23-Oct-2025 09:23:07 Europe/Berlin] Scenario 1: Query executed. Number of rows found: 0
+[23-Oct-2025 09:23:07 Europe/Berlin] Scenario 1: Stall ID not found in database or approval != 1.
+[23-Oct-2025 09:23:07 Europe/Berlin] Scenario 3: Checking Phone Number login for identifier: S81205
+[23-Oct-2025 09:23:07 Europe/Berlin] Scenario 3: Owner not found for phone number: S81205
+[23-Oct-2025 09:23:07 Europe/Berlin] Login failed: User not found in any scenario or password mismatch.
+[23-Oct-2025 09:23:07 Europe/Berlin] Final response being sent: {"status":"error","message":"Invalid credentials or user not found"}
+[23-Oct-2025 09:23:17 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 09:23:17 Europe/Berlin] Identifier received: S81208
+[23-Oct-2025 09:23:17 Europe/Berlin] Scenario 1: Detected Stall ID login for ID: S81208
+[23-Oct-2025 09:23:17 Europe/Berlin] Scenario 1: Query executed. Number of rows found: 1
+[23-Oct-2025 09:23:17 Europe/Berlin] Scenario 1: Found owner. Hash preview: $2y$10$/o2... Attempting password_verify.
+[23-Oct-2025 09:23:17 Europe/Berlin] Scenario 1: password_verify successful.
+[23-Oct-2025 09:23:17 Europe/Berlin] Scenario 1: Agreement IS NULL. Setting role to owner_agreement_pending.
+[23-Oct-2025 09:23:17 Europe/Berlin] Final response being sent: {"status":"success","message":"Please accept the terms to continue.","role":"owner_agreement_pending","data":{"phonenumber":"9638527411","stall_id":"S81208","stall_name":"Ulthapam Ganesh"}}
+[23-Oct-2025 09:26:55 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 09:26:55 Europe/Berlin] Identifier received: 9638527411
+[23-Oct-2025 09:26:55 Europe/Berlin] Scenario 3: Checking Phone Number login for identifier: 9638527411
+[23-Oct-2025 09:26:55 Europe/Berlin] Scenario 3: Found owner by phone. Attempting password_verify.
+[23-Oct-2025 09:26:55 Europe/Berlin] Scenario 3: password_verify successful.
+[23-Oct-2025 09:26:55 Europe/Berlin] Scenario 3: Approved, agreement NULL. Role owner_approval_pending_view.
+[23-Oct-2025 09:26:55 Europe/Berlin] Final response being sent: {"status":"success","message":"Your stall has been approved!","role":"owner_approval_pending_view","data":{"stall_id":"S81208"}}
+[23-Oct-2025 09:27:13 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 09:27:13 Europe/Berlin] Identifier received: S81208
+[23-Oct-2025 09:27:13 Europe/Berlin] Scenario 1: Detected Stall ID login for ID: S81208
+[23-Oct-2025 09:27:13 Europe/Berlin] Scenario 1: Query executed. Number of rows found: 1
+[23-Oct-2025 09:27:13 Europe/Berlin] Scenario 1: Found owner. Hash preview: $2y$10$/o2... Attempting password_verify.
+[23-Oct-2025 09:27:13 Europe/Berlin] Scenario 1: password_verify successful.
+[23-Oct-2025 09:27:13 Europe/Berlin] Scenario 1: Agreement IS NULL. Setting role to owner_agreement_pending.
+[23-Oct-2025 09:27:13 Europe/Berlin] Final response being sent: {"status":"success","message":"Please accept the terms to continue.","role":"owner_agreement_pending","data":{"phonenumber":"9638527411","stall_id":"S81208","stall_name":"Ulthapam Ganesh"}}
+[23-Oct-2025 09:30:01 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 09:30:01 Europe/Berlin] Identifier received: 192210687
+[23-Oct-2025 09:30:01 Europe/Berlin] Final response being sent: {"status":"success","message":"User login successful!","role":"student","data":[]}
+[23-Oct-2025 09:30:06 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 09:30:06 Europe/Berlin] Identifier received: 192210687
+[23-Oct-2025 09:30:07 Europe/Berlin] Final response being sent: {"status":"success","message":"User login successful!","role":"student","data":[]}
+[23-Oct-2025 09:30:15 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 09:30:15 Europe/Berlin] Identifier received: 192210687
+[23-Oct-2025 09:30:15 Europe/Berlin] Final response being sent: {"status":"success","message":"User login successful!","role":"student","data":[]}
+[23-Oct-2025 09:30:53 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 09:30:53 Europe/Berlin] Identifier received: 192210687
+[23-Oct-2025 09:30:53 Europe/Berlin] Final response being sent: {"status":"success","message":"User login successful!","role":"student","data":[]}
+[23-Oct-2025 09:31:09 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 09:31:09 Europe/Berlin] Identifier received: 192210687
+[23-Oct-2025 09:31:09 Europe/Berlin] Final response being sent: {"status":"success","message":"User login successful!","role":"student","data":[]}
+[23-Oct-2025 09:31:14 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 09:31:14 Europe/Berlin] Identifier received: 192210687
+[23-Oct-2025 09:31:14 Europe/Berlin] Final response being sent: {"status":"success","message":"User login successful!","role":"student","data":[]}
+[23-Oct-2025 09:36:12 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 09:36:12 Europe/Berlin] Identifier received: 192210687
+[23-Oct-2025 09:36:12 Europe/Berlin] Final response being sent: {"status":"success","message":"User login successful!","role":"student","data":{"id":35,"fullname":"Ranjith Kumar","student_id":"192210687","email":"ranjithkumarsse@gmail.com"}}
+[23-Oct-2025 09:37:44 Europe/Berlin] google_auth.php: Received ID token (len=1090). Role hint: user
+[23-Oct-2025 09:37:44 Europe/Berlin] google_auth.php: Using cacert: C:\xampp\php\extras\ssl\cacert.pem
+[23-Oct-2025 09:37:44 Europe/Berlin] google_auth.php: Guzzle client set.
+[23-Oct-2025 09:37:45 Europe/Berlin] google_auth.php: verifyIdToken returned payload. sub=116812214735179389454, aud=509454588471-pkbqseduu5j8bdh6ionk455pafhbii6t.apps.googleusercontent.com
+[23-Oct-2025 09:37:45 Europe/Berlin] google_auth.php: Payload accepted. email=ranjithsuriya12345@gmail.com, sub=116812214735179389454, name=Ranjithkumar
+[23-Oct-2025 09:37:45 Europe/Berlin] google_auth.php: User found in usignup. Role: student
+[23-Oct-2025 09:37:45 Europe/Berlin] google_auth.php: DB transaction committed.
+[23-Oct-2025 09:37:45 Europe/Berlin] google_auth.php: Final response: {"status":"success","message":"Google login successful!","role":"student","data":{"id":40,"fullname":"Rk","student_id":"213456789","email":"ranjithsuriya12345@gmail.com"}}
+[23-Oct-2025 09:39:58 Europe/Berlin] google_auth.php: Received ID token (len=1090). Role hint: user
+[23-Oct-2025 09:39:58 Europe/Berlin] google_auth.php: Using cacert: C:\xampp\php\extras\ssl\cacert.pem
+[23-Oct-2025 09:39:58 Europe/Berlin] google_auth.php: Guzzle client set.
+[23-Oct-2025 09:39:59 Europe/Berlin] google_auth.php: verifyIdToken returned payload. sub=116812214735179389454, aud=509454588471-pkbqseduu5j8bdh6ionk455pafhbii6t.apps.googleusercontent.com
+[23-Oct-2025 09:39:59 Europe/Berlin] google_auth.php: Payload accepted. email=ranjithsuriya12345@gmail.com, sub=116812214735179389454, name=Ranjithkumar
+[23-Oct-2025 09:39:59 Europe/Berlin] google_auth.php: Checking Osignup table for email: ranjithsuriya12345@gmail.com
+[23-Oct-2025 09:39:59 Europe/Berlin] google_auth.php: User not found. Attempting registration with role hint: user
+[23-Oct-2025 09:39:59 Europe/Berlin] google_auth.php: New user registered in usignup. ID: 52
+[23-Oct-2025 09:39:59 Europe/Berlin] google_auth.php: DB transaction committed.
+[23-Oct-2025 09:39:59 Europe/Berlin] google_auth.php: Final response: {"status":"new_google_user","message":"Google registration successful! Please confirm password.","role":"new_user_google","data":{"id":52,"fullname":"Ranjithkumar","student_id":"G1761205199","email":"ranjithsuriya12345@gmail.com","temp_password":"70f6fc9e"}}
+[23-Oct-2025 09:40:36 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 09:40:36 Europe/Berlin] Identifier received: 192210687
+[23-Oct-2025 09:40:36 Europe/Berlin] Final response being sent: {"status":"success","message":"User login successful!","role":"student","data":{"id":35,"fullname":"Ranjith Kumar","student_id":"192210687","email":"ranjithkumarsse@gmail.com"}}
+[23-Oct-2025 09:59:29 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 09:59:29 Europe/Berlin] Identifier received: 192210687
+[23-Oct-2025 09:59:29 Europe/Berlin] Final response being sent: {"status":"success","message":"User login successful!","role":"student","data":{"id":35,"fullname":"Ranjith Kumar","student_id":"192210687","email":"ranjithkumarsse@gmail.com"}}
+[23-Oct-2025 10:15:07 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 10:15:07 Europe/Berlin] Identifier received: 192210687
+[23-Oct-2025 10:15:07 Europe/Berlin] Final response being sent: {"status":"success","message":"User login successful!","role":"student","data":{"id":35,"fullname":"Ranjith Kumar","student_id":"192210687","email":"ranjithkumarsse@gmail.com"}}
+[23-Oct-2025 10:15:56 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 10:15:56 Europe/Berlin] Identifier received: S04525
+[23-Oct-2025 10:15:56 Europe/Berlin] Scenario 1: Detected Stall ID login for ID: S04525
+[23-Oct-2025 10:15:56 Europe/Berlin] Scenario 1: Query executed. Number of rows found: 1
+[23-Oct-2025 10:15:56 Europe/Berlin] Scenario 1: Found owner. Hash preview: $2y$10$ApU... Attempting password_verify.
+[23-Oct-2025 10:15:57 Europe/Berlin] Scenario 1: password_verify successful.
+[23-Oct-2025 10:15:57 Europe/Berlin] Scenario 1: Agreement IS NOT NULL (Value: '2025-10-21 19:25:09'). Setting role to owner_approved.
+[23-Oct-2025 10:15:57 Europe/Berlin] Final response being sent: {"status":"success","message":"Owner login successful!","role":"owner_approved","data":{"stall_id":"S04525","stall_name":"Sivan Unavagam"}}
+[23-Oct-2025 10:17:29 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 10:17:29 Europe/Berlin] Identifier received: S04525
+[23-Oct-2025 10:17:29 Europe/Berlin] Scenario 1: Detected Stall ID login for ID: S04525
+[23-Oct-2025 10:17:29 Europe/Berlin] Scenario 1: Query executed. Number of rows found: 1
+[23-Oct-2025 10:17:29 Europe/Berlin] Scenario 1: Found owner. Hash preview: $2y$10$ApU... Attempting password_verify.
+[23-Oct-2025 10:17:29 Europe/Berlin] Scenario 1: password_verify successful.
+[23-Oct-2025 10:17:29 Europe/Berlin] Scenario 1: Agreement IS NOT NULL (Value: '2025-10-21 19:25:09'). Setting role to owner_approved.
+[23-Oct-2025 10:17:29 Europe/Berlin] Final response being sent: {"status":"success","message":"Owner login successful!","role":"owner_approved","data":{"stall_id":"S04525","stall_name":"Sivan Unavagam"}}
+[23-Oct-2025 10:32:26 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 10:32:26 Europe/Berlin] Identifier received: 192210687
+[23-Oct-2025 10:32:26 Europe/Berlin] Final response being sent: {"status":"success","message":"User login successful!","role":"student","data":{"id":35,"fullname":"Ranjith Kumar","student_id":"192210687","email":"ranjithkumarsse@gmail.com"}}
+[23-Oct-2025 10:32:48 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 10:32:48 Europe/Berlin] Identifier received: S04525
+[23-Oct-2025 10:32:48 Europe/Berlin] Scenario 1: Detected Stall ID login for ID: S04525
+[23-Oct-2025 10:32:48 Europe/Berlin] Scenario 1: Query executed. Number of rows found: 1
+[23-Oct-2025 10:32:48 Europe/Berlin] Scenario 1: Found owner. Hash preview: $2y$10$ApU... Attempting password_verify.
+[23-Oct-2025 10:32:48 Europe/Berlin] Scenario 1: password_verify successful.
+[23-Oct-2025 10:32:48 Europe/Berlin] Scenario 1: Agreement IS NOT NULL (Value: '2025-10-21 19:25:09'). Setting role to owner_approved.
+[23-Oct-2025 10:32:48 Europe/Berlin] Final response being sent: {"status":"success","message":"Owner login successful!","role":"owner_approved","data":{"stall_id":"S04525","stall_name":"Sivan Unavagam"}}
+[23-Oct-2025 10:33:10 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 10:33:10 Europe/Berlin] Identifier received: S04525
+[23-Oct-2025 10:33:10 Europe/Berlin] Scenario 1: Detected Stall ID login for ID: S04525
+[23-Oct-2025 10:33:10 Europe/Berlin] Scenario 1: Query executed. Number of rows found: 1
+[23-Oct-2025 10:33:10 Europe/Berlin] Scenario 1: Found owner. Hash preview: $2y$10$ApU... Attempting password_verify.
+[23-Oct-2025 10:33:10 Europe/Berlin] Scenario 1: password_verify successful.
+[23-Oct-2025 10:33:10 Europe/Berlin] Scenario 1: Agreement IS NOT NULL (Value: '2025-10-21 19:25:09'). Setting role to owner_approved.
+[23-Oct-2025 10:33:10 Europe/Berlin] Final response being sent: {"status":"success","message":"Owner login successful!","role":"owner_approved","data":{"stall_id":"S04525","stall_name":"Sivan Unavagam"}}
+[23-Oct-2025 10:37:55 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 10:37:55 Europe/Berlin] Identifier received: S04525
+[23-Oct-2025 10:37:55 Europe/Berlin] Scenario 1: Detected Stall ID login for ID: S04525
+[23-Oct-2025 10:37:55 Europe/Berlin] Scenario 1: Query executed. Number of rows found: 1
+[23-Oct-2025 10:37:55 Europe/Berlin] Scenario 1: Found owner. Hash preview: $2y$10$ApU... Attempting password_verify.
+[23-Oct-2025 10:37:55 Europe/Berlin] Scenario 1: password_verify successful.
+[23-Oct-2025 10:37:55 Europe/Berlin] Scenario 1: Agreement IS NOT NULL (Value: '2025-10-21 19:25:09'). Setting role to owner_approved.
+[23-Oct-2025 10:37:55 Europe/Berlin] Final response being sent: {"status":"success","message":"Owner login successful!","role":"owner_approved","data":{"stall_id":"S04525","stall_name":"Sivan Unavagam"}}
+[23-Oct-2025 11:10:32 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 11:10:32 Europe/Berlin] Identifier received: 192210687
+[23-Oct-2025 11:10:33 Europe/Berlin] Final response being sent: {"status":"success","message":"User login successful!","role":"student","data":{"id":35,"fullname":"Ranjith Kumar","student_id":"192210687","email":"ranjithkumarsse@gmail.com"}}
+[23-Oct-2025 11:11:47 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 11:11:47 Europe/Berlin] Identifier received: S04525
+[23-Oct-2025 11:11:47 Europe/Berlin] Scenario 1: Detected Stall ID login for ID: S04525
+[23-Oct-2025 11:11:47 Europe/Berlin] Scenario 1: Query executed. Number of rows found: 1
+[23-Oct-2025 11:11:47 Europe/Berlin] Scenario 1: Found owner. Hash preview: $2y$10$ApU... Attempting password_verify.
+[23-Oct-2025 11:11:47 Europe/Berlin] Scenario 1: password_verify successful.
+[23-Oct-2025 11:11:47 Europe/Berlin] Scenario 1: Agreement IS NOT NULL (Value: '2025-10-21 19:25:09'). Setting role to owner_approved.
+[23-Oct-2025 11:11:47 Europe/Berlin] Final response being sent: {"status":"success","message":"Owner login successful!","role":"owner_approved","data":{"stall_id":"S04525","stall_name":"Sivan Unavagam"}}
+[23-Oct-2025 11:14:11 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 11:14:11 Europe/Berlin] Identifier received: 192210687
+[23-Oct-2025 11:14:11 Europe/Berlin] Final response being sent: {"status":"success","message":"User login successful!","role":"student","data":{"id":35,"fullname":"Ranjith Kumar","student_id":"192210687","email":"ranjithkumarsse@gmail.com"}}
+[23-Oct-2025 11:59:23 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 11:59:23 Europe/Berlin] Identifier received: 192210687
+[23-Oct-2025 11:59:23 Europe/Berlin] Final response being sent: {"status":"success","message":"User login successful!","role":"student","data":{"id":35,"fullname":"Ranjith Kumar","student_id":"192210687","email":"ranjithkumarsse@gmail.com"}}
+[23-Oct-2025 12:00:10 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 12:00:10 Europe/Berlin] Identifier received: S04525
+[23-Oct-2025 12:00:10 Europe/Berlin] Scenario 1: Detected Stall ID login for ID: S04525
+[23-Oct-2025 12:00:10 Europe/Berlin] Scenario 1: Query executed. Number of rows found: 1
+[23-Oct-2025 12:00:10 Europe/Berlin] Scenario 1: Found owner. Hash preview: $2y$10$ApU... Attempting password_verify.
+[23-Oct-2025 12:00:10 Europe/Berlin] Scenario 1: password_verify successful.
+[23-Oct-2025 12:00:10 Europe/Berlin] Scenario 1: Agreement IS NOT NULL (Value: '2025-10-21 19:25:09'). Setting role to owner_approved.
+[23-Oct-2025 12:00:10 Europe/Berlin] Final response being sent: {"status":"success","message":"Owner login successful!","role":"owner_approved","data":{"stall_id":"S04525","stall_name":"Sivan Unavagam"}}
+[23-Oct-2025 16:49:20 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 16:49:20 Europe/Berlin] Identifier received: 192210687
+[23-Oct-2025 16:49:20 Europe/Berlin] Final response being sent: {"status":"success","message":"User login successful!","role":"student","data":{"id":35,"fullname":"Ranjith Kumar","student_id":"192210687","email":"ranjithkumarsse@gmail.com"}}
+[23-Oct-2025 16:50:46 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 16:50:46 Europe/Berlin] Identifier received: S04525
+[23-Oct-2025 16:50:46 Europe/Berlin] Scenario 1: Detected Stall ID login for ID: S04525
+[23-Oct-2025 16:50:46 Europe/Berlin] Scenario 1: Query executed. Number of rows found: 1
+[23-Oct-2025 16:50:46 Europe/Berlin] Scenario 1: Found owner. Hash preview: $2y$10$ApU... Attempting password_verify.
+[23-Oct-2025 16:50:46 Europe/Berlin] Scenario 1: password_verify successful.
+[23-Oct-2025 16:50:46 Europe/Berlin] Scenario 1: Agreement IS NOT NULL (Value: '2025-10-21 19:25:09'). Setting role to owner_approved.
+[23-Oct-2025 16:50:46 Europe/Berlin] Final response being sent: {"status":"success","message":"Owner login successful!","role":"owner_approved","data":{"stall_id":"S04525","stall_name":"Sivan Unavagam"}}
+[23-Oct-2025 16:51:01 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 16:51:01 Europe/Berlin] Identifier received: S04525
+[23-Oct-2025 16:51:01 Europe/Berlin] Scenario 1: Detected Stall ID login for ID: S04525
+[23-Oct-2025 16:51:01 Europe/Berlin] Scenario 1: Query executed. Number of rows found: 1
+[23-Oct-2025 16:51:01 Europe/Berlin] Scenario 1: Found owner. Hash preview: $2y$10$ApU... Attempting password_verify.
+[23-Oct-2025 16:51:01 Europe/Berlin] Scenario 1: password_verify successful.
+[23-Oct-2025 16:51:01 Europe/Berlin] Scenario 1: Agreement IS NOT NULL (Value: '2025-10-21 19:25:09'). Setting role to owner_approved.
+[23-Oct-2025 16:51:01 Europe/Berlin] Final response being sent: {"status":"success","message":"Owner login successful!","role":"owner_approved","data":{"stall_id":"S04525","stall_name":"Sivan Unavagam"}}
+[23-Oct-2025 16:59:27 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 16:59:27 Europe/Berlin] Identifier received: 192210687
+[23-Oct-2025 16:59:27 Europe/Berlin] Final response being sent: {"status":"success","message":"User login successful!","role":"student","data":{"id":35,"fullname":"Ranjith Kumar","student_id":"192210687","email":"ranjithkumarsse@gmail.com"}}
+[23-Oct-2025 16:59:40 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 16:59:40 Europe/Berlin] Identifier received: 192210687
+[23-Oct-2025 16:59:40 Europe/Berlin] Final response being sent: {"status":"success","message":"User login successful!","role":"student","data":{"id":35,"fullname":"Ranjith Kumar","student_id":"192210687","email":"ranjithkumarsse@gmail.com"}}
+[23-Oct-2025 17:00:03 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 17:00:03 Europe/Berlin] Identifier received: 192210687
+[23-Oct-2025 17:00:03 Europe/Berlin] Final response being sent: {"status":"success","message":"User login successful!","role":"student","data":{"id":35,"fullname":"Ranjith Kumar","student_id":"192210687","email":"ranjithkumarsse@gmail.com"}}
+[23-Oct-2025 17:02:13 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 17:02:13 Europe/Berlin] Identifier received: S04525
+[23-Oct-2025 17:02:13 Europe/Berlin] Scenario 1: Detected Stall ID login for ID: S04525
+[23-Oct-2025 17:02:13 Europe/Berlin] Scenario 1: Query executed. Number of rows found: 1
+[23-Oct-2025 17:02:13 Europe/Berlin] Scenario 1: Found owner. Hash preview: $2y$10$ApU... Attempting password_verify.
+[23-Oct-2025 17:02:13 Europe/Berlin] Scenario 1: password_verify successful.
+[23-Oct-2025 17:02:13 Europe/Berlin] Scenario 1: Agreement IS NOT NULL (Value: '2025-10-21 19:25:09'). Setting role to owner_approved.
+[23-Oct-2025 17:02:13 Europe/Berlin] Final response being sent: {"status":"success","message":"Owner login successful!","role":"owner_approved","data":{"stall_id":"S04525","stall_name":"Sivan Unavagam"}}
+[23-Oct-2025 17:02:25 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 17:02:25 Europe/Berlin] Identifier received: S04525
+[23-Oct-2025 17:02:25 Europe/Berlin] Scenario 1: Detected Stall ID login for ID: S04525
+[23-Oct-2025 17:02:25 Europe/Berlin] Scenario 1: Query executed. Number of rows found: 1
+[23-Oct-2025 17:02:25 Europe/Berlin] Scenario 1: Found owner. Hash preview: $2y$10$ApU... Attempting password_verify.
+[23-Oct-2025 17:02:25 Europe/Berlin] Scenario 1: password_verify successful.
+[23-Oct-2025 17:02:25 Europe/Berlin] Scenario 1: Agreement IS NOT NULL (Value: '2025-10-21 19:25:09'). Setting role to owner_approved.
+[23-Oct-2025 17:02:25 Europe/Berlin] Final response being sent: {"status":"success","message":"Owner login successful!","role":"owner_approved","data":{"stall_id":"S04525","stall_name":"Sivan Unavagam"}}
+[23-Oct-2025 17:09:43 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 17:09:43 Europe/Berlin] Identifier received: 192210687
+[23-Oct-2025 17:09:43 Europe/Berlin] Final response being sent: {"status":"success","message":"User login successful!","role":"student","data":{"id":35,"fullname":"Ranjith Kumar","student_id":"192210687","email":"ranjithkumarsse@gmail.com"}}
+[23-Oct-2025 17:12:54 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 17:12:54 Europe/Berlin] Identifier received: 192210687
+[23-Oct-2025 17:12:54 Europe/Berlin] Final response being sent: {"status":"success","message":"User login successful!","role":"student","data":{"id":35,"fullname":"Ranjith Kumar","student_id":"192210687","email":"ranjithkumarsse@gmail.com"}}
+[23-Oct-2025 17:19:30 Europe/Berlin] --- New login.php request ---
+[23-Oct-2025 17:19:30 Europe/Berlin] Identifier received: 192210687
+[23-Oct-2025 17:19:30 Europe/Berlin] Final response being sent: {"status":"success","message":"User login successful!","role":"student","data":{"id":35,"fullname":"Ranjith Kumar","student_id":"192210687","email":"ranjithkumarsse@gmail.com"}}

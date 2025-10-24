@@ -1,0 +1,8 @@
+{
+    "require": {
+        "razorpay/razorpay": "^2.9",
+        "google/apiclient": "2.14",
+        "guzzlehttp/guzzle": "7.8",
+        "setasign/fpdf": "^1.8"
+    }
+}
